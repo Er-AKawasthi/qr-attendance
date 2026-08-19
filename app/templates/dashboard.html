@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Professor Dashboard - QR Attendance</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/css/dashboard.css">
+</head>
+<body class="dashboard-page dark-theme">
+    <header class="dashboard-header glass-card">
+        <div class="header-info">
+            <h1>🎓 AI Tools for Research — QR Attendance</h1>
+            <p id="current-date">August 19, 2026</p>
+        </div>
+        <div class="header-actions">
+            <div id="connection-status" class="status-indicator disconnected">Disconnected</div>
+            <a href="/logout" class="btn btn-outline btn-sm">Logout</a>
+        </div>
+    </header>
+
+    <main class="dashboard-grid">
+        <!-- Left Column: QR Code & Controls -->
+        <div class="qr-section glass-card">
+            <div id="session-controls" class="controls-area">
+                <button id="btn-start" class="btn btn-success btn-large">▶️ Start Session</button>
+                <button id="btn-stop" class="btn btn-danger btn-large hidden">⏹ Stop Session</button>
+            </div>
+            
+            <div id="qr-display-area" class="qr-area hidden">
+                <div class="qr-wrapper">
+                    <img id="qr-image" src="" alt="Scan QR to mark attendance" class="qr-code">
+                    <div class="qr-overlay hidden">
+                        <p>Session Inactive</p>
+                    </div>
+                </div>
+                
+                <div class="timer-container">
+                    <svg class="progress-ring" width="80" height="80">
+                        <circle class="progress-ring__circle" stroke="#4ecdc4" stroke-width="6" fill="transparent" r="34" cx="40" cy="40"/>
+                    </svg>
+                    <div class="timer-text">
+                        <span id="countdown">20</span>s
+                    </div>
+                </div>
+                <p class="refresh-text">Refreshes automatically</p>
+            </div>
+        </div>
+
+        <!-- Right Column: Stats & Recent Scans -->
+        <div class="stats-section">
+            <div class="stats-card glass-card">
+                <div class="stat-value"><span id="count-present">0</span> / <span id="count-total">0</span></div>
+                <div class="stat-label">Students Present</div>
+            </div>
+
+            <div class="recent-scans-card glass-card">
+                <h3>📋 Recent Scans</h3>
+                <div class="scans-list-header">
+                    <span>Student</span>
+                    <span>Time</span>
+                </div>
+                <ul id="recent-scans-list" class="scans-list">
+                    <li class="empty-state">No scans yet</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <footer class="dashboard-footer">
+        <p>🔒 Password Protected | ⚡ QR refreshes every 20s | IIIT Allahabad</p>
+    </footer>
+
+    <script src="/static/js/dashboard.js"></script>
+    <script>
+        // Set current date
+        const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('en-US', dateOptions);
+    </script>
+</body>
+</html>
