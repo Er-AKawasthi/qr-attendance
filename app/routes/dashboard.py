@@ -28,7 +28,7 @@ def get_current_user(request: Request):
 async def login_get(request: Request):
     if get_current_user(request):
         return RedirectResponse(url="/dashboard", status_code=303)
-    return templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="login.html")
 
 @router.post("/login")
 async def login_post(request: Request, password: str = Form(...)):
@@ -36,7 +36,7 @@ async def login_post(request: Request, password: str = Form(...)):
         response = RedirectResponse(url="/dashboard", status_code=303)
         response.set_cookie(key="session", value=signer.sign("authenticated=true").decode(), httponly=True)
         return response
-    return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid password"})
+    return templates.TemplateResponse(request=request, name="login.html", context={"error": "Invalid password"})
 
 @router.get("/logout")
 async def logout():
@@ -48,7 +48,7 @@ async def logout():
 async def dashboard(request: Request):
     if not get_current_user(request):
         return RedirectResponse(url="/login", status_code=303)
-    return templates.TemplateResponse("dashboard.html", {"request": request})
+    return templates.TemplateResponse(request=request, name="dashboard.html")
 
 @router.post("/api/session/start")
 async def start_session(request: Request):
