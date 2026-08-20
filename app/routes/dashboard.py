@@ -2,7 +2,7 @@ from fastapi import APIRouter, Request, Response, Depends, Form, WebSocket, WebS
 from fastapi.responses import HTMLResponse, RedirectResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
 from itsdangerous import TimestampSigner, BadSignature, SignatureExpired
-from app.config import PROFESSOR_PASSWORD, SECRET_KEY, QR_REFRESH_INTERVAL, BASE_URL
+from app.config import PROFESSOR_PASSWORD, SECRET_KEY, QR_REFRESH_INTERVAL
 from app.database import get_db
 from pathlib import Path
 import asyncio
@@ -28,7 +28,7 @@ def get_current_user(request: Request):
 async def login_get(request: Request):
     if get_current_user(request):
         return RedirectResponse(url="/dashboard", status_code=303)
-    return templates.TemplateResponse(request, "login.html")
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @router.post("/login")
 async def login_post(request: Request, password: str = Form(...)):
@@ -36,7 +36,7 @@ async def login_post(request: Request, password: str = Form(...)):
         response = RedirectResponse(url="/dashboard", status_code=303)
         response.set_cookie(key="session", value=signer.sign("authenticated=true").decode(), httponly=True)
         return response
-    return templates.TemplateResponse(request, "login.html", context={"error": "Invalid password"})
+    return templates.TemplateResponse("login.html", {"request": request, "error": "Invalid password"})
 
 @router.get("/logout")
 async def logout():
@@ -48,7 +48,7 @@ async def logout():
 async def dashboard(request: Request):
     if not get_current_user(request):
         return RedirectResponse(url="/login", status_code=303)
-    return templates.TemplateResponse(request, "dashboard.html")
+    return templates.TemplateResponse("dashboard.html", {"request": request})
 
 @router.post("/api/session/start")
 async def start_session(request: Request):
@@ -116,6 +116,11 @@ async def stop_session(request: Request):
 async def websocket_qr(websocket: WebSocket):
     await websocket.accept()
     qr_engine = websocket.app.state.qr_engine
+
+    # Auto-detect base URL from the request so QR works on any deployment
+    host = websocket.headers.get("host", "localhost:8000")
+    scheme = "https" if "onrender.com" in host or websocket.headers.get("x-forwarded-proto") == "https" else "http"
+    base_url = f"{scheme}://{host}"
     
     async def on_attendance(student_info):
         try:
@@ -152,7 +157,7 @@ async def websocket_qr(websocket: WebSocket):
                     qr_engine.refresh_token()
                     expires_in = QR_REFRESH_INTERVAL
                     
-                state = qr_engine.get_state(BASE_URL, expires_in, attendance_count, total_students, recent)
+                state = qr_engine.get_state(base_url, expires_in, attendance_count, total_students, recent)
                 await websocket.send_json({"type": "state", "data": state})
             else:
                 await websocket.send_json({"type": "state", "data": {"session_active": False}})
