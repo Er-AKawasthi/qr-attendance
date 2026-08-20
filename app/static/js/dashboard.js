@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let socket = null;
     let reconnectTimer = null;
     let countdownInterval = null;
-    let currentExpiresIn = 20;
+    let currentExpiresIn = 60;
     let sessionActive = false;
     let seenRolls = new Set();
     
