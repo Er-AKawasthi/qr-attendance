@@ -20,7 +20,7 @@ async def mark_get(request: Request, token: str):
     if not qr_engine.is_token_valid(token):
         return HTMLResponse("<h1>Invalid or Expired Token</h1>", status_code=400)
     
-    return templates.TemplateResponse("mark.html", {"request": request, "token": token})
+    return templates.TemplateResponse(request, "mark.html", context={"token": token})
 
 @router.post("/api/mark")
 async def mark_post(request: Request, data: MarkAttendanceRequest):
