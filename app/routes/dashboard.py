@@ -73,7 +73,6 @@ async def stop_session(request: Request):
         return JSONResponse({"error": "Unauthorized"}, status_code=401)
         
     qr_engine = request.app.state.qr_engine
-    sheets_sync = request.app.state.sheets_sync
     
     session_id = qr_engine.session_id
     qr_engine.stop_session()
@@ -83,32 +82,13 @@ async def stop_session(request: Request):
             cursor = conn.cursor()
             cursor.execute("UPDATE sessions SET is_active = 0, ended_at = CURRENT_TIMESTAMP WHERE id = ?", (session_id,))
             conn.commit()
-            
-            # Sync to sheets
-            cursor.execute("SELECT date FROM sessions WHERE id = ?", (session_id,))
-            date_str = cursor.fetchone()['date']
-            
-            cursor.execute("SELECT roll_number, name FROM students")
-            all_students = cursor.fetchall()
-            
-            cursor.execute('''
-                SELECT s.roll_number 
-                FROM attendance a 
-                JOIN students s ON a.student_id = s.id 
-                WHERE a.session_id = ?
-            ''', (session_id,))
-            present_rolls = {row['roll_number'] for row in cursor.fetchall()}
-            
-            sync_data = []
-            for student in all_students:
-                sync_data.append({
-                    "roll_number": student['roll_number'],
-                    "name": student['name'],
-                    "present": student['roll_number'] in present_rolls
-                })
-                
-        # Optional: Run in background
-        asyncio.create_task(asyncio.to_thread(sheets_sync.sync_attendance, date_str, sync_data))
+        
+        # Generate updated Excel file in background
+        from app.sheets_sync import generate_excel
+        try:
+            asyncio.create_task(asyncio.to_thread(generate_excel))
+        except Exception as e:
+            print(f"Excel generation error: {e}")
             
     return {"status": "stopped"}
 

@@ -4,8 +4,7 @@ python-multipart
 jinja2
 qrcode[pil]
 Pillow
-gspread
-google-auth
+openpyxl
 itsdangerous
 websockets
 aiofiles

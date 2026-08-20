@@ -6,7 +6,6 @@ import os
 
 from app.database import init_db
 from app.qr_engine import QREngine
-from app.sheets_sync import SheetsSync
 from app.routes import dashboard, attendance, admin
 
 # Resolve paths relative to this file
@@ -32,7 +31,6 @@ app.include_router(admin.router)
 async def startup_event():
     init_db()
     app.state.qr_engine = QREngine()
-    app.state.sheets_sync = SheetsSync()
 
 @app.get("/")
 async def root():
