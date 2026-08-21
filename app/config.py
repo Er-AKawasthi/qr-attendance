@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 COURSE_NAME = 'AI Tools for Research'
-QR_REFRESH_INTERVAL = 20  # seconds
+QR_REFRESH_INTERVAL = 60  # seconds
 PROFESSOR_PASSWORD = os.getenv('PROFESSOR_PASSWORD', 'admin123')
 SECRET_KEY = os.getenv('SECRET_KEY', secrets.token_hex(32))
 DATABASE_URL = os.getenv('DATABASE_URL', 'sqlite:///./attendance.db')
