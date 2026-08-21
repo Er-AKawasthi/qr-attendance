@@ -34,7 +34,7 @@ class QREngine:
         # Optional: check expiration (e.g. within 25 seconds allowing 5s grace period)
         if self.token_created_at:
             delta = datetime.datetime.now() - self.token_created_at
-            if delta.total_seconds() > 25:
+            if delta.total_seconds() > 65:
                 return False
         return True
 
